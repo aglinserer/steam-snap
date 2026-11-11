@@ -8,10 +8,12 @@
 # game command.
 #
 # The rootfs is extracted to $SNAP_USER_COMMON/x86_rootfs by fex_launcher.sh,
-# which also exports FEX_ROOTFS and copies this wrapper (plus the Vulkan layer
-# manifest) into the rootfs. The amd64 MangoHud libraries must live in the
-# rootfs at:  /usr/lib/x86_64-linux-gnu/mangohud/
-#   (libMangoHud_shim.so, libMangoHud_opengl.so, libMangoHud.so)
+# which also exports FEX_ROOTFS and installs this wrapper over the rootfs's
+# own /usr/bin/mangohud (whose static LD_PRELOAD path only resolves if FEX
+# roots the standard multiarch prefix at the rootfs). The rootfs already
+# carries the full amd64 MangoHud 0.8.4 install:
+#   /usr/lib/x86_64-linux-gnu/mangohud/{libMangoHud_shim.so,libMangoHud_opengl.so,libMangoHud.so}
+#   /usr/share/vulkan/implicit_layer.d/MangoHud.x86_64.json
 
 if [ "$#" -eq 0 ]; then
     programname=$(basename "$0")
@@ -28,7 +30,7 @@ RiseOfTheTombRaider.sh
 "
 
 if [ "$1" = "--version" ]; then
-    echo v0.8.1
+    echo v0.8.4
     exit 0
 fi
 

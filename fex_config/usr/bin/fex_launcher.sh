@@ -192,20 +192,20 @@ export PRESSURE_VESSEL_FILESYSTEMS_RO="/snap/steam/current/usr/share/fex-emu:/sn
 #export LD_DEBUG=libs,files
 #export LD_DEBUG_OUTPUT=$SNAP_USER_COMMON/ld-debug
 
-# Keep the MangoHud wrapper + Vulkan implicit-layer manifest in the x86 rootfs
-# in sync with the snap. The amd64 MangoHud .so libraries are baked into the
-# rootfs (see snap/snapcraft.yaml, mangohud part); this only refreshes the two
-# small text files so they track snap updates. Defensive: no-op if the rootfs
-# or the snap-provided files are absent.
+# Install the MangoHud wrapper from the snap over the rootfs's own
+# /usr/bin/mangohud. The rootfs already carries the full amd64 MangoHud
+# install (libs + Vulkan layer manifest, see snap/snapcraft.yaml mangohud
+# part), but its wrapper uses a static LD_PRELOAD path that only resolves if
+# FEX roots the standard multiarch prefix at the rootfs; the snap's wrapper
+# uses the concrete host path into the extracted rootfs, so it works either
+# way. Do NOT overwrite the rootfs's layer manifest: it is matched to the
+# rootfs's MangoHud library version (loader interface negotiation).
+# Defensive: no-op if the rootfs or the snap-provided file is absent.
 if [ -d "$FEX_ROOTFS" ]; then
 	if [ -f "$SNAP/mangohud/mangohud" ]; then
 		mkdir -p "$FEX_ROOTFS/usr/bin"
 		cp -f "$SNAP/mangohud/mangohud" "$FEX_ROOTFS/usr/bin/mangohud"
 		chmod +x "$FEX_ROOTFS/usr/bin/mangohud"
-	fi
-	if [ -f "$SNAP/mangohud/MangoHud.x86_64.json" ]; then
-		mkdir -p "$FEX_ROOTFS/usr/share/vulkan/implicit_layer.d"
-		cp -f "$SNAP/mangohud/MangoHud.x86_64.json" "$FEX_ROOTFS/usr/share/vulkan/implicit_layer.d/MangoHud.x86_64.json"
 	fi
 fi
 

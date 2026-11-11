@@ -1059,14 +1059,18 @@ parts:
     source: ./fex_config
   # MangoHud (FPS overlay) for games running as x86-64 under FEX.
   #
-  # The wrapper + Vulkan layer manifest are shipped in the snap under
-  # $SNAP/mangohud/ and copied into the x86 rootfs at launch by
-  # fex_launcher.sh. The amd64 MangoHud *libraries* themselves are baked into
-  # the amd64_rootfs tarball (see the rootfs build) and MUST live in the
-  # rootfs at:
-  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud_shim.so
-  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud_opengl.so
-  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud.so
+  # The amd64_rootfs tarball already carries the complete amd64 MangoHud
+  # 0.8.4 install (verified in the amd64-components-11-9-26 release):
+  #   /usr/bin/mangohud
+  #   /usr/lib/x86_64-linux-gnu/mangohud/{libMangoHud_shim.so,libMangoHud_opengl.so,libMangoHud.so}
+  #   /usr/share/vulkan/implicit_layer.d/MangoHud.x86_64.json
+  # This part only ships the snap-side wrapper ($SNAP/mangohud/mangohud),
+  # which fex_launcher.sh installs over the rootfs's /usr/bin/mangohud at
+  # launch. The rootfs wrapper's static LD_PRELOAD path only resolves if FEX
+  # roots the standard multiarch prefix at the rootfs; this wrapper uses the
+  # concrete host path into the extracted rootfs, so it works either way.
+  # (The rootfs's own layer manifest is left untouched: it is matched to the
+  # rootfs's MangoHud library version.)
   # Enable per-game with the launch option:  mangohud %command%
   mangohud:
     plugin: dump
@@ -1076,7 +1080,6 @@ parts:
     # file still exists in the install dir -- a same-named file/dir collides.
     organize:
       mangohud-wrapper: mangohud/mangohud
-      MangoHud.x86_64.json: mangohud/MangoHud.x86_64.json
   wget:
     plugin: nil
     stage-packages:
