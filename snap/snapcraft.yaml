@@ -214,6 +214,9 @@ parts:
     stage:
       # the amd64 snap's own metadata; snapcraft regenerates meta/ for this snap
       - -meta
+      # the amd64 dump contains doc files that collide with the arm64
+      # stage-packages of other parts (e.g. fex-emu's gstreamer deps)
+      - -usr/share/doc/**
       - -usr/bin/curl
       - -usr/bin/fc-cache
       - -usr/bin/fc-cat
