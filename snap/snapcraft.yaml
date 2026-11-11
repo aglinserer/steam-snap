@@ -1054,6 +1054,26 @@ parts:
   fex-config:
     plugin: dump
     source: ./fex_config
+  # MangoHud (FPS overlay) for games running as x86-64 under FEX.
+  #
+  # The wrapper + Vulkan layer manifest are shipped in the snap under
+  # $SNAP/mangohud/ and copied into the x86 rootfs at launch by
+  # fex_launcher.sh. The amd64 MangoHud *libraries* themselves are baked into
+  # the amd64_rootfs tarball (see the rootfs build) and MUST live in the
+  # rootfs at:
+  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud_shim.so
+  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud_opengl.so
+  #   /usr/lib/x86_64-linux-gnu/mangohud/libMangoHud.so
+  # Enable per-game with the launch option:  mangohud %command%
+  mangohud:
+    plugin: dump
+    source: ./mangohud/
+    # NOTE: the wrapper source file is named mangohud-wrapper (not mangohud)
+    # because organize must create the dest dir `mangohud/` while the source
+    # file still exists in the install dir -- a same-named file/dir collides.
+    organize:
+      mangohud-wrapper: mangohud/mangohud
+      MangoHud.x86_64.json: mangohud/MangoHud.x86_64.json
   wget:
     plugin: nil
     stage-packages:
